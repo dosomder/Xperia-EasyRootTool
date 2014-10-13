@@ -8,11 +8,19 @@ if [ -f /data/local/tmp/ricaddr ]; then
 else
 	echo 'mod_loaded=`lsmod | grep wp_mod`' >> /data/local/tmp/mount.sh
 	echo 'if [ "$mod_loaded" = "" ]; then' >> /data/local/tmp/mount.sh
-	echo "	insmod /data/local/tmp/wp_mod.ko" >> /data/local/tmp/mount.sh
+	echo '	if [ -f /system/lib/modules/wp_mod.ko ]; then' >> /data/local/tmp/mount.sh
+	echo "		insmod /system/lib/modules/wp_mod.ko" >> /data/local/tmp/mount.sh
+	echo "	else" >> /data/local/tmp/mount.sh
+	echo "		insmod /data/local/tmp/wp_mod.ko" >> /data/local/tmp/mount.sh
+	echo "	fi" >> /data/local/tmp/mount.sh
 	echo "fi" >> /data/local/tmp/mount.sh
 	mod_loaded=`lsmod | grep wp_mod`
 	if [ "$mod_loaded" = "" ]; then
-		insmod /data/local/tmp/wp_mod.ko
+		if [ -f /system/lib/modules/wp_mod.ko ]; then
+			insmod /system/lib/modules/wp_mod.ko
+		else
+			insmod /data/local/tmp/wp_mod.ko
+		fi
 	fi
 fi
 
@@ -29,5 +37,8 @@ fi
 rm /system/bin/mount
 cp /data/local/tmp/mount.sh /system/bin/mount
 chmod 755 /system/bin/mount
+
+cp /data/local/tmp/wp_mod.ko /system/lib/modules/wp_mod.ko
+chmod 644 /system/lib/modules/wp_mod.ko
 
 echo "Installing of mount.sh finished"

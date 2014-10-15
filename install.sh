@@ -3,8 +3,8 @@
 ADBBINARY="adb.linux"
 OS=$(uname)
 
-BASEDIR=$(dirname $0)
-cd $BASEDIR
+BASEDIR="$( dirname "$0" )"
+cd "$BASEDIR"
 
 chmod +x files/adb.linux
 chmod +x files/adb.mac

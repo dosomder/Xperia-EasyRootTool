@@ -95,7 +95,11 @@ then
 	if [ "$OS" = "Darwin" ]; then
 		unzip -j tr.apk lib/armeabi/libexploit.so > /dev/null
 	else
-		./unzip.linux -j tr.apk lib/armeabi/libexploit.so > /dev/null
+		if [ "`whereis unzip`" = "unzip:" ]; then
+			./unzip.linux -j tr.apk lib/armeabi/libexploit.so > /dev/null
+		else
+			unzip -j tr.apk lib/armeabi/libexploit.so > /dev/null
+		fi
 	fi
 
 	if [ ! -f libexploit.so ]; then

@@ -195,6 +195,32 @@ echo "Device model is $product_name"
 firmware=`./${ADBBINARY} shell "getprop ro.build.id"`
 echo "Firmware is $firmware"
 
+kernelver=`./${ADBBINARY} shell "cat /proc/version"`
+year=`echo $kernelver | sed 's/ /\n/g' | tail -n1`
+if [ $year -gt 2014 ]; then
+	echo ""
+	echo "WARNING: The kernel of your device was built after May 2014."
+	echo "It's highly likely that rooting will fail because the exploit was patched"
+	echo "Try flashing an older kernel"
+	echo ""
+	echo "If you still want to try, press any key to continue"
+	read tmpvar
+else
+	if [ $year -eq 2014 ]; then
+		split=`echo $kernelver | awk -F'PREEMPT ' '{print $2}'`
+		month=`date -d "$split" "+%m"`
+		if [ $month -gt 5 ]; then
+			echo ""
+			echo "WARNING: The kernel of your device was built after May 2014."
+			echo "It's highly likely that rooting will fail because the exploit was patched"
+			echo "Try flashing an older kernel"
+			echo ""
+			echo "If you still want to try, press any key to continue"
+			read tmpvar
+		fi
+	fi
+fi
+
 echo ""
 echo "============================================="
 echo "Sending files"

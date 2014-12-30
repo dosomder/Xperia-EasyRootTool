@@ -155,6 +155,50 @@ echo Device model is %product_name%
 for /f "delims=" %%i in ('adb shell "getprop ro.build.id"') do ( set firmware=%%i)
 echo Firmware is %firmware%
 
+for /f "delims=" %%i in ('adb shell "cat /proc/version"') do ( set "kernelver=%%i")
+set /a splitlength=0
+for %%i in (!kernelver!) do (
+	set /a splitlength+=1
+	set "year=%%i"
+)
+if %year% lss 2014 (
+	goto SendFiles
+)
+if %year% gtr 2014 (
+	goto ShowWarning
+)
+set /a current=0
+set /a splitlength-=3
+for %%i in (!kernelver!) do (
+	set /a current+=1
+	if !current! equ !splitlength! (
+		set "month=%%i"
+	)
+)
+
+set /a current=0
+for %%i in (Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec) do (
+	set /a current+=1
+	if "!month!" == "%%i" (
+		set /a buildmonth=!current!
+	)
+)
+
+if %buildmonth% gtr 5 (
+	goto ShowWarning
+)
+goto SendFiles
+:ShowWarning
+echo.
+echo WARNING: The kernel of your device was built after May 2014.
+echo It's highly likely that rooting will fail because the exploit was patched
+echo Try flashing an older kernel
+echo.
+echo If you still want to try, press any key to continue
+pause
+
+
+:SendFiles
 echo.
 echo =============================================
 echo Sending files

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ADBBINARY="adb.linux"
+ADBBINARY="./adb.linux"
 OS=$(uname)
 
 BASEDIR="$( dirname "$0" )"
@@ -9,14 +9,6 @@ cd "$BASEDIR"
 chmod +x files/adb.linux
 chmod +x files/adb.mac
 chmod +x files/unzip.linux
-
-if [ "$OS" = "Linux" ]; then
-	ADBBINARY="adb.linux"
-fi
-
-if [ "$OS" = "Darwin" ]; then
-	ADBBINARY="adb.mac"
-fi
 
 echo ""
 echo "=============================================="
@@ -38,6 +30,19 @@ echo "=       - xsacha                             ="
 echo "=                                            ="
 echo "=============================================="
 echo ""
+
+if [ "$OS" = "Linux" ]; then
+	ADBBINARY="./adb.linux"
+fi
+if [ "$OS" = "Darwin" ]; then
+	ADBBINARY="./adb.mac"
+fi
+adb version > /dev/null 2>&1 || { ADBBINARY="adb" && echo "Using local adb"; }
+if [ "$ADBBINARY" != "adb" ]; then
+	echo "Using $ADBBINARY"
+fi
+echo ""
+
 
 cd ./files
 SONYRIC=1
@@ -121,8 +126,8 @@ if [ "$OS" = "Linux" ]; then
 	echo ""
 fi
 
-./${ADBBINARY} kill-server
-./${ADBBINARY} start-server
+${ADBBINARY} kill-server
+${ADBBINARY} start-server
 
 echo "============================================="
 echo "Waiting for Device, connect USB cable now..."
@@ -130,20 +135,20 @@ echo ""
 echo "Make sure that you authorize the connection"
 echo "if you get any message on the phone"
 echo "============================================="
-./${ADBBINARY} wait-for-device
+${ADBBINARY} wait-for-device
 echo "Device found!"
-CDevices=`./${ADBBINARY} devices | wc -l`
+CDevices=`${ADBBINARY} devices | wc -l`
 if [ $CDevices -gt 3 ]; then
 	echo "More than one device connected."
 
 	availDevices=""
 	CavailDevices=0
 	
-	adb_devices=`./${ADBBINARY} devices`
+	adb_devices=`${ADBBINARY} devices`
 	Cadb_devices=`echo "$adb_devices" | wc -l`
 	adb_devices=`echo "$adb_devices" | tail -$((Cadb_devices-1))`
 	
-	for line in `./${ADBBINARY} devices`; do
+	for line in `${ADBBINARY} devices`; do
 		case "$line" in
 			"emulator"*)
 				;;
@@ -190,12 +195,12 @@ echo ""
 echo "============================================="
 echo "Getting device variables"
 echo "============================================="
-product_name=`./${ADBBINARY} shell "getprop ro.build.product"`
+product_name=`${ADBBINARY} shell "getprop ro.build.product"`
 echo "Device model is $product_name"
-firmware=`./${ADBBINARY} shell "getprop ro.build.id"`
+firmware=`${ADBBINARY} shell "getprop ro.build.id"`
 echo "Firmware is $firmware"
 
-kernelver=`./${ADBBINARY} shell "cat /proc/version"`
+kernelver=`${ADBBINARY} shell "cat /proc/version"`
 year=`echo $kernelver | sed 's/ /\n/g' | tail -n1`
 if [ $year -gt 2014 ]; then
 	echo ""
@@ -226,46 +231,46 @@ echo "============================================="
 echo "Sending files"
 echo "============================================="
 
-./${ADBBINARY} push zxz.sh /data/local/tmp/zxz.sh
-./${ADBBINARY} push installmount.sh /data/local/tmp
-./${ADBBINARY} push writekmem /data/local/tmp
-./${ADBBINARY} push findricaddr /data/local/tmp
-./${ADBBINARY} push busybox /data/local/tmp
-./${ADBBINARY} shell "chmod 777 /data/local/tmp/zxz.sh"
-./${ADBBINARY} shell "chmod 777 /data/local/tmp/installmount.sh"
-./${ADBBINARY} shell "chmod 777 /data/local/tmp/writekmem"
-./${ADBBINARY} shell "chmod 777 /data/local/tmp/findricaddr"
-./${ADBBINARY} shell "chmod 777 /data/local/tmp/busybox"
+${ADBBINARY} push zxz.sh /data/local/tmp/zxz.sh
+${ADBBINARY} push installmount.sh /data/local/tmp
+${ADBBINARY} push writekmem /data/local/tmp
+${ADBBINARY} push findricaddr /data/local/tmp
+${ADBBINARY} push busybox /data/local/tmp
+${ADBBINARY} shell "chmod 777 /data/local/tmp/zxz.sh"
+${ADBBINARY} shell "chmod 777 /data/local/tmp/installmount.sh"
+${ADBBINARY} shell "chmod 777 /data/local/tmp/writekmem"
+${ADBBINARY} shell "chmod 777 /data/local/tmp/findricaddr"
+${ADBBINARY} shell "chmod 777 /data/local/tmp/busybox"
 
 echo ""
 echo "Copying kernel module..."
-./${ADBBINARY} push "wp_mod.ko" /data/local/tmp
-./${ADBBINARY} push "kernelmodule_patch.sh" /data/local/tmp
-./${ADBBINARY} shell "chmod 777 /data/local/tmp/kernelmodule_patch.sh"
-./${ADBBINARY} push "modulecrcpatch" /data/local/tmp
-./${ADBBINARY} shell "chmod 777 /data/local/tmp/modulecrcpatch"
-./${ADBBINARY} shell "/data/local/tmp/kernelmodule_patch.sh"
+${ADBBINARY} push "wp_mod.ko" /data/local/tmp
+${ADBBINARY} push "kernelmodule_patch.sh" /data/local/tmp
+${ADBBINARY} shell "chmod 777 /data/local/tmp/kernelmodule_patch.sh"
+${ADBBINARY} push "modulecrcpatch" /data/local/tmp
+${ADBBINARY} shell "chmod 777 /data/local/tmp/modulecrcpatch"
+${ADBBINARY} shell "/data/local/tmp/kernelmodule_patch.sh"
 
 echo ""
 echo "============================================="
 echo "Loading geohot's towelroot (modified by zxz0O0)"
 echo "============================================="
 
-./${ADBBINARY} push towelzxperia_ert /data/local/tmp
-./${ADBBINARY} push libexploit.so /data/local/tmp
-./${ADBBINARY} shell "chmod 777 /data/local/tmp/towelzxperia_ert"
+${ADBBINARY} push towelzxperia_ert /data/local/tmp
+${ADBBINARY} push libexploit.so /data/local/tmp
+${ADBBINARY} shell "chmod 777 /data/local/tmp/towelzxperia_ert"
 
 echo "============================================="
 echo ""
 echo "Waiting for towelroot to exploit..."
-./${ADBBINARY} shell "/data/local/tmp/towelzxperia_ert"
+${ADBBINARY} shell "/data/local/tmp/towelzxperia_ert"
 echo "done"
 
 echo ""
 echo "Checking if device is rooted..."
 sleep 1
-#./${ADBBINARY} wait-for-device
-isRooted=`./${ADBBINARY} shell "su -c ls -l" | tr -d '\r\n'`
+#${ADBBINARY} wait-for-device
+isRooted=`${ADBBINARY} shell "su -c ls -l" | tr -d '\r\n'`
 if [ "$isRooted" = "/system/bin/sh: su: not found" ] || [ "$isRooted" = "" ]; then
 	echo "Error: device not rooted"
 	exit 1
@@ -278,14 +283,14 @@ echo ""
 echo "============================================="
 echo "Checking for Sony RIC"
 echo "============================================="
-SONYRIC=`./${ADBBINARY} shell "su -c /data/local/tmp/busybox grep 'sony_ric/enable' /init*.rc" | wc -l | tr -d '\r\n'`
+SONYRIC=`${ADBBINARY} shell "su -c /data/local/tmp/busybox grep 'sony_ric/enable' /init*.rc" | wc -l | tr -d '\r\n'`
  
 if [ $SONYRIC -gt 0 ]; then
 	echo "Sony RIC Service found."
 	echo "Installing RIC kill script installmount.sh..."
 	sleep 1
-	./${ADBBINARY} wait-for-device
-	./${ADBBINARY} shell "su -c /data/local/tmp/installmount.sh"
+	${ADBBINARY} wait-for-device
+	${ADBBINARY} shell "su -c /data/local/tmp/installmount.sh"
 else
 	echo "No Sony RIC Service found."
 fi
@@ -294,14 +299,14 @@ echo "Done. You can now unplug your device."
 echo "Enjoy root!"
 echo "============================================="
 
-./${ADBBINARY} shell "rm /data/local/tmp/zxz.sh"
-./${ADBBINARY} shell "rm /data/local/tmp/kernelmodule_patch.sh"
-./${ADBBINARY} shell "rm /data/local/tmp/findricaddr"
-./${ADBBINARY} shell "rm /data/local/tmp/installmount.sh"
-./${ADBBINARY} shell "rm /data/local/tmp/towelzxperia_ert"
-./${ADBBINARY} shell "rm /data/local/tmp/libzxploit.so"
-./${ADBBINARY} shell "rm /data/local/tmp/libexploit.so"
-./${ADBBINARY} kill-server
+${ADBBINARY} shell "rm /data/local/tmp/zxz.sh"
+${ADBBINARY} shell "rm /data/local/tmp/kernelmodule_patch.sh"
+${ADBBINARY} shell "rm /data/local/tmp/findricaddr"
+${ADBBINARY} shell "rm /data/local/tmp/installmount.sh"
+${ADBBINARY} shell "rm /data/local/tmp/towelzxperia_ert"
+${ADBBINARY} shell "rm /data/local/tmp/libzxploit.so"
+${ADBBINARY} shell "rm /data/local/tmp/libexploit.so"
+${ADBBINARY} kill-server
 
 echo ""
 echo "What to do next?"
